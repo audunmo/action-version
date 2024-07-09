@@ -1,0 +1,18 @@
+# https://taskfile.dev
+
+version: "3"
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  build:
+    cmds:
+      - go build -race -o action-version main.go
+    silent: true
+  lint:
+    cmds:
+      - golangci-lint ./...
+  test:
+    cmds:
+      - go test -race ./...

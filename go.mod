@@ -1,6 +1,6 @@
 module github.com/audunmo/action-version
 
-go 1.23rc1
+go 1.22.5
 
 require (
 	github.com/briandowns/spinner v1.23.1
