@@ -15,7 +15,7 @@ With Go installed on your system run `go install github.com/audunmo/action-versi
 When ran in a folder with .md or .yaml files, action-version will look through those files for strings matching the pattern `uses: actions/checkout@v4` and replace them with the commit hash of the commit tagged with v4.
 
 ```bash
-cd path/to/your/repo/.github/workflows
+cd path/to/your/repo
 
 # Update .yaml/.yml and .md files in the working directory
 action-version
