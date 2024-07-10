@@ -1,4 +1,4 @@
-# Automatically change Github Action versions from semver strings to commit hashes
+# Easily pin Github Actions versions in workflow files and documentation
 
 Having semver versions control your github actions is bad, and we shouldn't do it. But, docs always use semver versions, and it's annoying to have to go get all those commits and pasting in the correct versions. So I made this.
 
