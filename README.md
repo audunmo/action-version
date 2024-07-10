@@ -30,7 +30,7 @@ Github Actions `uses` strings are often copy-pasted from docs. Since docs often 
 
 # Related projects
 
-- (Mend Renovate)[https://github.com/apps/renovate]
+- [Mend Renovate](https://github.com/apps/renovate)
 
 Renovate is a really cool project that helps devs stay up-to-date with their dependecny version that helps devs stay up-to-date with their dependecny versions, including Github Actions versions. With some configuration, Renovate can perform similar tasks like `action-version`. You can see their docs here https://docs.renovatebot.com/modules/manager/github-actions/#additional-information
 
