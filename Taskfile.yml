@@ -6,10 +6,13 @@ vars:
   GREETING: Hello, World!
 
 tasks:
-  build:
+  build:dev:
     cmds:
       - go build -race -o action-version main.go
     silent: true
+  build:release:
+    cmds:
+      - go build main.go
   lint:
     cmds:
       - golangci-lint ./...
