@@ -22,6 +22,10 @@ cd path/to/your/repo/.github/workflows
 action-version
 ```
 
+## Wait, why does it edit markdown files?
+
+Github Actions `uses` strings are often copy-pasted from docs. Since docs often contain these version strings as opposed to commit hashes, the dangerous pattern of using version strings gets proliferated. Therefore, `action-version` will also edit any markdown files it sees. That way, consumers of your documentation can still get the benefits of a pinned version, with no extra effort for them
+
 # Related projects
 
 - (Mend Renovate)[https://github.com/apps/renovate]
