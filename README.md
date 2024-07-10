@@ -1,4 +1,4 @@
-# 📌#️⃣ Easily pin Github Action versions from version strings to commit hashes
+# 📌#️⃣ Easily pin Github Action versions
 
 Using version numbers to control your github actions is a bad security practice, as the version tag can be reassigned, leaving you open to supply chain attacks. Docs often use version numbers, and it's time-consuming to have to go get all those commits and pasting in the correct versions. `action-version` will automatically do this for you, for workflow files and markdown documentation.
 
@@ -23,8 +23,6 @@ action-version
 # Update .yaml/.yml and .md files in the working directory and in subfolders
 action-version -r
 ```
-
-## The problem
 
 ## Wait, why does it edit markdown files?
 
