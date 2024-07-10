@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"regexp"
 	"strings"
 	"sync"
@@ -13,20 +14,43 @@ import (
 	"github.com/go-git/go-git/v5/storage/memory"
 )
 
-func ListDir(pwd string) ([]string, error) {
-	dirFiles, err := os.ReadDir(pwd)
+func ListDir(directory string, recursive bool, vi map[string]bool) ([]string, error) {
+	dirFiles, err := os.ReadDir(directory)
 	if err != nil {
 		return nil, err
 	}
 	var files []string
 	for _, file := range dirFiles {
-		if file.IsDir() {
+		if _, ok := vi[file.Name()]; ok {
 			continue
 		}
 
-		if strings.HasSuffix(file.Name(), ".yml") || strings.HasSuffix(file.Name(), ".yaml") || strings.HasSuffix(file.Name(), ".md") {
-			files = append(files, file.Name())
+		vi[file.Name()] = true
+
+		if file.IsDir() {
+			if file.Name() == ".git" {
+				continue
+			}
+
+			if !recursive {
+				continue
+			}
+
+			dir := path.Join(directory, file.Name())
+			ff, err := ListDir(dir, recursive, vi)
+			if err != nil {
+				return nil, err
+			}
+
+			files = append(files, ff...)
 		}
+
+		filepath := path.Join(directory, file.Name())
+
+		if strings.HasSuffix(file.Name(), ".yml") || strings.HasSuffix(file.Name(), ".yaml") || strings.HasSuffix(file.Name(), ".md") {
+			files = append(files, filepath)
+		}
+
 	}
 	return files, nil
 }
@@ -152,7 +176,7 @@ func UpdateFile(fileName string, status chan string, writer func(string, []byte,
 				return
 			}
 
-			status <- fmt.Sprintf("  (%s) Updating with hash %s for %s@%s\n", fileName, hash, a.Action, a.Version)
+			status <- fmt.Sprintf("  (%s) Updated with hash %s for %s@%s\n", fileName, hash, a.Action, a.Version)
 			updates <- Update{
 				FileName:   fileName,
 				OldVersion: a.Version,

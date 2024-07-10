@@ -14,13 +14,17 @@ With Go installed on your system run `go install github.com/audunmo/action-versi
 
 When ran in a folder with .md or .yaml files, action-version will look through those files for strings matching the pattern `uses: actions/checkout@v1` and replace them with the commit hash of the commit tagged with v1.
 
-> [!NOTE] > `action-version` will only look at files in the same folder as it is ran in. It will _not_ recursively look through subfolders.
-
 ```bash
 cd path/to/your/repo/.github/workflows
 
+# Update .yaml/.yml and .md files in the working directory
 action-version
+
+# Update .yaml/.yml and .md files in the working directory and in subfolders
+action-version -r
 ```
+
+## The problem
 
 ## Wait, why does it edit markdown files?
 

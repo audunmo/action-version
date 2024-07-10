@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"sync"
@@ -33,7 +34,7 @@ func process(fileNames []string, status chan string, done chan bool) error {
 
 func handleSpinner(cancel func(), status chan string, done chan bool) {
 	go func() {
-		s := spinner.New(spinner.CharSets[14], 100*time.Millisecond)
+		s := spinner.New(spinner.CharSets[14], 50*time.Millisecond)
 		s.Color("yellow")
 		s.FinalMSG = ""
 		s.Start()
@@ -54,12 +55,16 @@ func handleSpinner(cancel func(), status chan string, done chan bool) {
 }
 
 func main() {
+	var recursive bool
+	flag.BoolVar(&recursive, "r", false, "Recursively apply to .md, .yaml, and .yml files in subdirectories as well")
+	flag.Parse()
+
 	dir, err := os.Getwd()
 	if err != nil {
 		panic(err)
 	}
 
-	ff, err := files.ListDir(dir)
+	ff, err := files.ListDir(dir, recursive, make(map[string]bool))
 	if err != nil {
 		panic(err)
 	}
@@ -84,5 +89,5 @@ func main() {
 
 	wg.Wait()
 
-	fmt.Printf("🚀 ✅ Successfully pinned Github Actions versions in %d files\n", len(ff))
+	fmt.Printf("🚀 ✅ Successfully pinned Github Actions versions")
 }
