@@ -69,7 +69,7 @@ func main() {
 	}
 
 	if len(ff) == 0 {
-		panic("No .yaml or .yml files found. Please run this command in a directory with .yaml or .yml Github Action files.")
+		panic("No .md, .yaml or .yml files found. Please run this command in a directory with .yaml or .yml Github Action files.")
 	}
 
 	// Receive status updates from the process function, to push to the spinner.
