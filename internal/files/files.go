@@ -13,7 +13,7 @@ import (
 	"github.com/go-git/go-git/v5/storage/memory"
 )
 
-func ListDir(pwd string, allFiles bool) ([]string, error) {
+func ListDir(pwd string) ([]string, error) {
 	dirFiles, err := os.ReadDir(pwd)
 	if err != nil {
 		return nil, err
@@ -21,11 +21,6 @@ func ListDir(pwd string, allFiles bool) ([]string, error) {
 	var files []string
 	for _, file := range dirFiles {
 		if file.IsDir() {
-			continue
-		}
-
-		if allFiles {
-			files = append(files, file.Name())
 			continue
 		}
 

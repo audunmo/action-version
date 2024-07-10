@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"sync"
@@ -60,10 +59,7 @@ func main() {
 		panic(err)
 	}
 
-	var allFiles bool
-	flag.BoolVar(&allFiles, "all", false, "Update all files in the directory, not just yaml/yml files")
-
-	ff, err := files.ListDir(dir, allFiles)
+	ff, err := files.ListDir(dir)
 	if err != nil {
 		panic(err)
 	}
