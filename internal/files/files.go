@@ -75,27 +75,28 @@ type SemverAction struct {
 	Full    string
 }
 
-var usesRegex = regexp.MustCompile(`(m?)uses: (.+)@(v[\d\.]+)`)
+var usesRegex = regexp.MustCompile(`uses: ([\w-]+/[\w-]+)(?:/[\w-]+)?@(v[\d.]+)`)
 
 // FindSemverActions finds all actions in a file that match patterns like:
 //
 //	uses: actions/checkout@v2
+//	uses: github/codeql-action/init@v3
 //
-// It returns the matches, or an error if there was a problem parsing the file.
-func FindSemverActions(fileContents string) ([]SemverAction, error) {
+// It returns the matches.
+func FindSemverActions(fileContents string) []SemverAction {
 	stringMatches := usesRegex.FindAllStringSubmatch(fileContents, -1)
 
 	var matches []SemverAction
 	for _, m := range stringMatches {
 		mm := SemverAction{
 			Full:    m[0],
-			Action:  m[2],
-			Version: m[3],
+			Action:  m[1],
+			Version: m[2],
 		}
 
 		matches = append(matches, mm)
 	}
-	return matches, nil
+	return matches
 }
 
 type HashGetter struct {
@@ -146,10 +147,7 @@ func UpdateFile(fileName string, status chan string, writer func(string, []byte,
 		return err
 	}
 
-	matches, err := FindSemverActions(fileContents)
-	if err != nil {
-		return err
-	}
+	matches := FindSemverActions(fileContents)
 	if len(matches) == 0 {
 		return nil
 	}
