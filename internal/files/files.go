@@ -1,7 +1,7 @@
 package files
 
 import (
-	"errors"
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -10,8 +10,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/storage/memory"
+	"github.com/google/go-github/v66/github"
+	"golang.org/x/oauth2"
 )
 
 func ListDir(directory string, recursive bool, vi map[string]bool) ([]string, error) {
@@ -99,43 +99,38 @@ func FindSemverActions(fileContents string) ([]SemverAction, error) {
 }
 
 type HashGetter struct {
-	memory *memory.Storage
-	repos  map[string]*git.Repository
+	hashes map[string]string
 	mut    *sync.Mutex
 }
 
 func NewHashGetter() *HashGetter {
 	return &HashGetter{
-		memory: memory.NewStorage(),
-		repos:  make(map[string]*git.Repository),
+		hashes: make(map[string]string),
 		mut:    &sync.Mutex{},
 	}
 }
 
 func (h *HashGetter) GetHashForAction(a SemverAction) (string, error) {
-	errorForAction := fmt.Errorf("Error for action %s@%s", a.Action, a.Version)
 	h.mut.Lock()
 	defer h.mut.Unlock()
-	repo, ok := h.repos[a.Action]
-	if !ok || repo == nil {
-		var err error
-		repo, err = git.Clone(memory.NewStorage(), nil, &git.CloneOptions{
-			URL: "https://github.com/" + a.Action,
-		})
-
-		if err != nil && !errors.Is(err, git.ErrRepositoryAlreadyExists) {
-			return "", fmt.Errorf("%w: %s", errorForAction, err)
-		}
+	hash := h.hashes[a.Action]
+	if hash != "" {
+		return hash, nil
 	}
-
-	tag, err := repo.Tag(a.Version)
+	ctx := context.Background()
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: os.Getenv("GITHUB_TOKEN")},
+	)
+	tc := oauth2.NewClient(ctx, ts)
+	client := github.NewClient(tc)
+	s := strings.Split(a.Action, "/")
+	ref, _, err := client.Git.GetRef(ctx, s[0], s[1], "refs/tags/"+a.Version)
 	if err != nil {
 		return "", err
 	}
-
-	h.repos[a.Action] = repo
-
-	return tag.Hash().String(), nil
+	sha := ref.Object.GetSHA()
+	h.hashes[a.Action] = sha
+	return sha, nil
 }
 
 type Update struct {
@@ -166,8 +161,7 @@ func UpdateFile(fileName string, status chan string, writer func(string, []byte,
 		go func(a SemverAction) {
 			status <- fmt.Sprintf("  (%s) Finding hash for %s@%s\n", fileName, a.Action, a.Version)
 			hash, err := hashGetter.GetHashForAction(a)
-			// Multiple action files may pull the same action, either at the same or different versions. This causes ErrRepositoryAlreadyExists error. This doesnt represent an error in this case.
-			if err != nil && !errors.Is(err, git.ErrRepositoryAlreadyExists) {
+			if err != nil {
 				errs <- err
 				return
 			}
