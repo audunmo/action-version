@@ -12,7 +12,7 @@ With Go installed on your system run `go install github.com/audunmo/action-versi
 
 ## Usage
 
-When ran in a folder with .md or .yaml files, action-version will look through those files for strings matching the pattern `uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4` and replace them with the commit hash of the commit tagged with v4.
+When ran in a folder with .md or .yaml files, action-version will look through those files for strings matching the pattern `uses: actions/checkout@v4` and replace them with the commit hash of the commit tagged with v4.
 
 ```bash
 cd path/to/your/repo
