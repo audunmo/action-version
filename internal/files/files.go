@@ -100,14 +100,16 @@ func FindSemverActions(fileContents string) []SemverAction {
 }
 
 type HashGetter struct {
-	hashes map[string]string
-	mut    *sync.Mutex
+	hashes    map[string]string
+	mut       *sync.Mutex
+	authToken string
 }
 
-func NewHashGetter() *HashGetter {
+func NewHashGetter(authToken string) *HashGetter {
 	return &HashGetter{
-		hashes: make(map[string]string),
-		mut:    &sync.Mutex{},
+		hashes:    make(map[string]string),
+		mut:       &sync.Mutex{},
+		authToken: authToken,
 	}
 }
 
@@ -120,7 +122,7 @@ func (h *HashGetter) GetHashForAction(a SemverAction) (string, error) {
 	}
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: os.Getenv("GITHUB_TOKEN")},
+		&oauth2.Token{AccessToken: h.authToken},
 	)
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
@@ -129,6 +131,7 @@ func (h *HashGetter) GetHashForAction(a SemverAction) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	sha := ref.Object.GetSHA()
 	h.hashes[a.Action] = sha
 	return sha, nil
@@ -141,7 +144,7 @@ type Update struct {
 	FullMatch  string
 }
 
-func UpdateFile(fileName string, status chan string, writer func(string, []byte, os.FileMode) error) error {
+func UpdateFile(fileName string, status chan string, writer func(string, []byte, os.FileMode) error, authToken string) error {
 	fileContents, err := ReadFile(fileName)
 	if err != nil {
 		return err
@@ -154,7 +157,7 @@ func UpdateFile(fileName string, status chan string, writer func(string, []byte,
 	errs := make(chan error, 1)
 	updates := make(chan Update, len(matches)-1)
 
-	hashGetter := NewHashGetter()
+	hashGetter := NewHashGetter(authToken)
 	for _, a := range matches {
 		go func(a SemverAction) {
 			status <- fmt.Sprintf("  (%s) Finding hash for %s@%s\n", fileName, a.Action, a.Version)

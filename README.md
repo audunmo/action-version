@@ -6,22 +6,23 @@ Using version numbers to control your github actions is a bad security practice,
 
 Dependencies:
 
-- Go (https://golang.org/doc/install)
+- Go (<https://golang.org/doc/install>)
 
 With Go installed on your system run `go install github.com/audunmo/action-version@v1.0.2`
 
 ## Usage
 
-When ran in a folder with .md or .yaml files, action-version will look through those files for strings matching the pattern `uses: actions/checkout@v4` and replace them with the commit hash of the commit tagged with v4.
+When ran in a folder with .md or .yaml files, action-version will look through those files for strings matching the pattern `uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4` and replace them with the commit hash of the commit tagged with v4.
 
 ```bash
 cd path/to/your/repo
 
 # Update .yaml/.yml and .md files in the working directory
-action-version
+# Authenticated queries to the GH api makes this script run much faster, so we require the auth token. Easiest is to get the token from the `gh` cli
+action-version -t $(gh auth token)
 
 # Update .yaml/.yml and .md files in the working directory and in subfolders
-action-version -r
+action-version -r -t $(gh auth token)
 ```
 
 ## Wait, why does it edit markdown files?
@@ -32,6 +33,6 @@ Github Actions `uses` strings are often copy-pasted from docs. Since docs often 
 
 - [Mend Renovate](https://github.com/apps/renovate)
 
-Renovate is a really cool project that helps devs stay up-to-date with their dependecny version that helps devs stay up-to-date with their dependecny versions, including Github Actions versions. With some configuration, Renovate can perform similar tasks like `action-version`. You can see their docs here https://docs.renovatebot.com/modules/manager/github-actions/#additional-information
+Renovate is a really cool project that helps devs stay up-to-date with their dependecny version that helps devs stay up-to-date with their dependecny versions, including Github Actions versions. With some configuration, Renovate can perform similar tasks like `action-version`. You can see their docs here <https://docs.renovatebot.com/modules/manager/github-actions/#additional-information>
 
 `action-version` is intended to fill the gap for where Renovate may be overkill for a project, or where you want to ensure that versions are pinned locally before they get pushed to your repo

@@ -11,7 +11,7 @@ import (
 	"github.com/briandowns/spinner"
 )
 
-func process(fileNames []string, status chan string, done chan bool) error {
+func process(fileNames []string, status chan string, done chan bool, authToken string) error {
 	errs := make(chan error, len(fileNames))
 	var wg sync.WaitGroup
 	for _, file := range fileNames {
@@ -19,7 +19,7 @@ func process(fileNames []string, status chan string, done chan bool) error {
 		go func(file string) {
 			defer wg.Done()
 			status <- fmt.Sprintf("Updating %s", file)
-			err := files.UpdateFile(file, status, os.WriteFile)
+			err := files.UpdateFile(file, status, os.WriteFile, authToken)
 			if err != nil {
 				errs <- err
 			}
@@ -56,8 +56,14 @@ func handleSpinner(cancel func(), status chan string, done chan bool) {
 
 func main() {
 	var recursive bool
+	var authToken string
 	flag.BoolVar(&recursive, "r", false, "Recursively apply to .md, .yaml, and .yml files in subdirectories as well")
+	flag.StringVar(&authToken, "t", "", "Auth token for Github")
 	flag.Parse()
+
+	if authToken == "" {
+		panic("must provide auth token to the -t flag")
+	}
 
 	dir, err := os.Getwd()
 	if err != nil {
@@ -82,7 +88,7 @@ func main() {
 	wg.Add(1)
 	handleSpinner(func() { wg.Done() }, status, done)
 
-	err = process(ff, status, done)
+	err = process(ff, status, done, authToken)
 	if err != nil {
 		panic(err)
 	}
