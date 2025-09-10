@@ -8,7 +8,7 @@ Dependencies:
 
 - Go (<https://golang.org/doc/install>)
 
-With Go installed on your system run `go install github.com/audunmo/action-version@v1.0.2`
+With Go installed on your system run `go install github.com/audunmo/action-version@v2.0.0`
 
 ## Usage
 
